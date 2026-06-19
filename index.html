@@ -49,9 +49,9 @@
   <h1>Stroop-Test</h1>
 
   <div id="startArea">
-    <p>Bitte Teilnehmer-ID und Alter eingeben.</p>
+    <p>Bitte Name und Alter eingeben.</p>
 
-    <input id="participantId" placeholder="Teilnehmer-ID">
+    <input id="participantId" placeholder="Name">
     <input id="age" type="number" placeholder="Alter">
 
     <br><br>
@@ -181,7 +181,20 @@
       showTrial();
     }
 
-    function endTest() {
+   async function endTest() {
+  document.getElementById("testArea").style.display = "none";
+  document.getElementById("resultArea").style.display = "block";
+
+  await fetch("HIER_DEINE_GOOGLE_SCRIPT_URL_EINFÜGEN", {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ results: results })
+  });
+}
+    {
       document.getElementById("testArea").style.display = "none";
       document.getElementById("resultArea").style.display = "block";
     }
