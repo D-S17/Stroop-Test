@@ -182,6 +182,7 @@
     }
 
    async function endTest() {
+     
   await fetch("https://script.google.com/macros/s/AKfycbxycP2-T-GV5OzjKA5hw3fXJfSHTrh2jgXWkSOnb98Ognqbc_7JknYAm1L7G9HP7qGn/exec", {
     method: "POST",
     mode: "no-cors",
@@ -191,7 +192,7 @@
     body: JSON.stringify({ results: results })
   });
 }
-    {
+    function downloadCSV() {
       document.getElementById("testArea").style.display = "none";
       document.getElementById("resultArea").style.display = "block";
     }
