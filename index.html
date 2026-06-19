@@ -59,7 +59,7 @@
     <button onclick="startTest()">Test starten</button>
   </div>
 
-  <div id="testArea">
+  <div id="testArea" style="display:none;">
     <p>Klicke auf die Farbe, in der das Wort geschrieben ist.</p>
 
     <div id="word">ROT</div>
@@ -70,6 +70,12 @@
     <button onclick="answer('gelb')">Gelb</button>
 
     <p id="progress"></p>
+  </div>
+  
+   <div id="resultArea" style="display:none;">
+    <h2>Test beendet</h2>
+    <p>Bitte lade die Ergebnisdatei herunter und schicke sie an die Versuchsleitung.</p>
+    <button onclick="downloadCSV()">Ergebnisse herunterladen</button>
   </div>
 
   <script>
