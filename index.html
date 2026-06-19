@@ -45,7 +45,7 @@
 
   <div id="startArea">
     <p>Bitte Name und Alter eingeben.</p>
-    <input id="participantId" placeholder="Teilnehmer-ID">
+    <input id="participantId" placeholder="Name">
     <input id="age" type="number" placeholder="Alter">
     <br><br>
     <button onclick="startTest()">Test starten</button>
@@ -78,13 +78,13 @@ const colors = [
 ];
 
 let trials = [];
-let currentTrial = 0;
-let startTime = 0;
+let currentTrial = 10;
+let startTime = 30;
 let results = [];
 let participantId = "";
 let age = "";
 
-const numberOfTrials = 30;
+const numberOfTrials = 20;
 
 function startTest() {
   participantId = document.getElementById("participantId").value;
