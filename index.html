@@ -181,9 +181,11 @@
       showTrial();
     }
 
-   async function endTest() {
-     
-  await fetch("https://script.google.com/macros/s/AKfycbxycP2-T-GV5OzjKA5hw3fXJfSHTrh2jgXWkSOnb98Ognqbc_7JknYAm1L7G9HP7qGn/exec", {
+  async function endTest() {
+  document.getElementById("testArea").style.display = "none";
+  document.getElementById("resultArea").style.display = "block";
+
+  await fetch("DEINE_URL", {
     method: "POST",
     mode: "no-cors",
     headers: {
@@ -192,13 +194,14 @@
     body: JSON.stringify({ results: results })
   });
 }
-    function downloadCSV() {
+
+function downloadCSV() {
       document.getElementById("testArea").style.display = "none";
       document.getElementById("resultArea").style.display = "block";
     }
 
     function downloadCSV() {
-      let csv = "TeilnehmerID,Alter,Datum,Versuch,Wort,RichtigeFarbe,GewaehlteFarbe,Richtig,Reaktionszeit_ms,Kongruent\n";
+      let csv = "TeilnehmerID,Alter,Datum,Versuch,Wort,RichtigeFarbe,GewaehlteFarbe,Richtig,Reaktionszeit_ms,Kongruent\n"; 
 
       results.forEach(r => {
         csv += `${r.participantId},${r.age},${r.date},${r.trial},${r.word},${r.correctColor},${r.selectedColor},${r.correct},${r.reactionTimeMs},${r.congruent}\n`;
