@@ -98,7 +98,34 @@ function startTest() {
   document.getElementById("startArea").style.display = "none";
   document.getElementById("testArea").style.display = "block";
 
-  createTrials();
+function createTrials() {
+  trials = [];
+
+  let allCombinations = [];
+
+  colors.forEach(wordColor => {
+    colors.forEach(textColor => {
+      allCombinations.push({
+        word: wordColor.word,
+        correctColor: textColor.name,
+        cssColor: textColor.css,
+        congruent: wordColor.name === textColor.name
+      });
+    });
+  });
+
+  // Kombinationen mehrfach hinzufügen, damit genug Aufgaben entstehen
+  let pool = [];
+  for (let i = 0; i < 3; i++) {
+    pool = pool.concat(allCombinations);
+  }
+
+  // Zufällig mischen
+  pool.sort(() => Math.random() - 0.5);
+
+  // Erste 30 Aufgaben nehmen
+  trials = pool.slice(0, numberOfTrials);
+}
   showTrial();
 }
 
