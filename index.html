@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Stroop-Test</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -11,10 +12,14 @@
       background: #f5f5f5;
     }
 
+    h1 {
+      font-size: 36px;
+    }
+
     #word {
-      font-size: 70px;
+      font-size: 80px;
       font-weight: bold;
-      margin: 40px;
+      margin: 50px;
     }
 
     button {
@@ -22,6 +27,8 @@
       padding: 15px 25px;
       margin: 10px;
       cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid #333;
     }
 
     input {
@@ -30,29 +37,31 @@
       margin: 5px;
     }
 
-    #testArea {
-      display: none;
-    }
-
+    #testArea,
     #resultArea {
       display: none;
     }
   </style>
 </head>
+
 <body>
 
   <h1>Stroop-Test</h1>
 
   <div id="startArea">
-    <p>Bitte Name und Alter eingeben.</p>
-    <input id="participantId" placeholder="Name">
+    <p>Bitte Teilnehmer-ID und Alter eingeben.</p>
+
+    <input id="participantId" placeholder="Teilnehmer-ID">
     <input id="age" type="number" placeholder="Alter">
+
     <br><br>
+
     <button onclick="startTest()">Test starten</button>
   </div>
 
   <div id="testArea">
     <p>Klicke auf die Farbe, in der das Wort geschrieben ist.</p>
+
     <div id="word">ROT</div>
 
     <button onclick="answer('rot')">Rot</button>
@@ -69,142 +78,132 @@
     <button onclick="downloadCSV()">Ergebnisse herunterladen</button>
   </div>
 
-<script>
-const colors = [
-  {name: "rot", css: "red", word: "ROT"},
-  {name: "blau", css: "blue", word: "BLAU"},
-  {name: "gruen", css: "green", word: "GRÜN"},
-  {name: "gelb", css: "gold", word: "GELB"}
-];
+  <script>
+    const colors = [
+      { name: "rot", css: "red", word: "ROT" },
+      { name: "blau", css: "blue", word: "BLAU" },
+      { name: "gruen", css: "green", word: "GRÜN" },
+      { name: "gelb", css: "gold", word: "GELB" }
+    ];
 
-let trials = [];
-let currentTrial = 10;
-let startTime = 30;
-let results = [];
-let participantId = "";
-let age = "";
+    const numberOfTrials = 30;
 
-const numberOfTrials = 20;
+    let trials = [];
+    let currentTrial = 0;
+    let startTime = 0;
+    let results = [];
+    let participantId = "";
+    let age = "";
 
-function startTest() {
-  participantId = document.getElementById("participantId").value;
-  age = document.getElementById("age").value;
+    function startTest() {
+      participantId = document.getElementById("participantId").value.trim();
+      age = document.getElementById("age").value.trim();
 
-  if (participantId === "" || age === "") {
-    alert("Bitte Teilnehmer-ID und Alter eingeben.");
-    return;
-  }
+      if (participantId === "" || age === "") {
+        alert("Bitte Teilnehmer-ID und Alter eingeben.");
+        return;
+      }
 
-  document.getElementById("startArea").style.display = "none";
-  document.getElementById("testArea").style.display = "block";
+      currentTrial = 0;
+      results = [];
 
-function createTrials() {
-  trials = [];
+      createTrials();
 
-  let allCombinations = [];
+      document.getElementById("startArea").style.display = "none";
+      document.getElementById("resultArea").style.display = "none";
+      document.getElementById("testArea").style.display = "block";
 
-  colors.forEach(wordColor => {
-    colors.forEach(textColor => {
-      allCombinations.push({
-        word: wordColor.word,
-        correctColor: textColor.name,
-        cssColor: textColor.css,
-        congruent: wordColor.name === textColor.name
+      showTrial();
+    }
+
+    function createTrials() {
+      trials = [];
+
+      let allCombinations = [];
+
+      colors.forEach(wordColor => {
+        colors.forEach(textColor => {
+          allCombinations.push({
+            word: wordColor.word,
+            correctColor: textColor.name,
+            cssColor: textColor.css,
+            congruent: wordColor.name === textColor.name
+          });
+        });
       });
-    });
-  });
 
-  // Kombinationen mehrfach hinzufügen, damit genug Aufgaben entstehen
-  let pool = [];
-  for (let i = 0; i < 3; i++) {
-    pool = pool.concat(allCombinations);
-  }
+      let pool = [];
 
-  // Zufällig mischen
-  pool.sort(() => Math.random() - 0.5);
+      for (let i = 0; i < 3; i++) {
+        pool = pool.concat(allCombinations);
+      }
 
-  // Erste 30 Aufgaben nehmen
-  trials = pool.slice(0, numberOfTrials);
-}
-  showTrial();
-}
+      pool.sort(() => Math.random() - 0.5);
 
-function createTrials() {
-  trials = [];
+      trials = pool.slice(0, numberOfTrials);
+    }
 
-  for (let i = 0; i < numberOfTrials; i++) {
-    let wordColor = colors[Math.floor(Math.random() * colors.length)];
-    let textColor = colors[Math.floor(Math.random() * colors.length)];
+    function showTrial() {
+      if (currentTrial >= trials.length) {
+        endTest();
+        return;
+      }
 
-    trials.push({
-      word: wordColor.word,
-      correctColor: textColor.name,
-      cssColor: textColor.css,
-      congruent: wordColor.name === textColor.name
-    });
-  }
-}
+      let trial = trials[currentTrial];
 
-function showTrial() {
-  if (currentTrial >= trials.length) {
-    endTest();
-    return;
-  }
+      document.getElementById("word").innerText = trial.word;
+      document.getElementById("word").style.color = trial.cssColor;
 
-  let trial = trials[currentTrial];
+      document.getElementById("progress").innerText =
+        "Aufgabe " + (currentTrial + 1) + " von " + numberOfTrials;
 
-  document.getElementById("word").innerText = trial.word;
-  document.getElementById("word").style.color = trial.cssColor;
-  document.getElementById("progress").innerText =
-    "Aufgabe " + (currentTrial + 1) + " von " + numberOfTrials;
+      startTime = performance.now();
+    }
 
-  startTime = performance.now();
-}
+    function answer(selectedColor) {
+      let reactionTime = Math.round(performance.now() - startTime);
+      let trial = trials[currentTrial];
 
-function answer(selectedColor) {
-  let reactionTime = Math.round(performance.now() - startTime);
-  let trial = trials[currentTrial];
+      results.push({
+        participantId: participantId,
+        age: age,
+        date: new Date().toISOString(),
+        trial: currentTrial + 1,
+        word: trial.word,
+        correctColor: trial.correctColor,
+        selectedColor: selectedColor,
+        correct: selectedColor === trial.correctColor,
+        reactionTimeMs: reactionTime,
+        congruent: trial.congruent
+      });
 
-  results.push({
-    participantId: participantId,
-    age: age,
-    date: new Date().toISOString(),
-    trial: currentTrial + 1,
-    word: trial.word,
-    correctColor: trial.correctColor,
-    selectedColor: selectedColor,
-    correct: selectedColor === trial.correctColor,
-    reactionTimeMs: reactionTime,
-    congruent: trial.congruent
-  });
+      currentTrial++;
+      showTrial();
+    }
 
-  currentTrial++;
-  showTrial();
-}
+    function endTest() {
+      document.getElementById("testArea").style.display = "none";
+      document.getElementById("resultArea").style.display = "block";
+    }
 
-function endTest() {
-  document.getElementById("testArea").style.display = "none";
-  document.getElementById("resultArea").style.display = "block";
-}
+    function downloadCSV() {
+      let csv = "TeilnehmerID,Alter,Datum,Versuch,Wort,RichtigeFarbe,GewaehlteFarbe,Richtig,Reaktionszeit_ms,Kongruent\n";
 
-function downloadCSV() {
-  let csv = "TeilnehmerID,Alter,Datum,Versuch,Wort,RichtigeFarbe,GewaehlteFarbe,Richtig,Reaktionszeit_ms,Kongruent\n";
+      results.forEach(r => {
+        csv += `${r.participantId},${r.age},${r.date},${r.trial},${r.word},${r.correctColor},${r.selectedColor},${r.correct},${r.reactionTimeMs},${r.congruent}\n`;
+      });
 
-  results.forEach(r => {
-    csv += `${r.participantId},${r.age},${r.date},${r.trial},${r.word},${r.correctColor},${r.selectedColor},${r.correct},${r.reactionTimeMs},${r.congruent}\n`;
-  });
+      let blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      let url = URL.createObjectURL(blob);
 
-  let blob = new Blob([csv], { type: "text/csv" });
-  let url = URL.createObjectURL(blob);
+      let a = document.createElement("a");
+      a.href = url;
+      a.download = "stroop_ergebnis_" + participantId + ".csv";
+      a.click();
 
-  let a = document.createElement("a");
-  a.href = url;
-  a.download = "stroop_ergebnis_" + participantId + ".csv";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-</script>
+      URL.revokeObjectURL(url);
+    }
+  </script>
 
 </body>
 </html>
