@@ -1,0 +1,149 @@
+const grid = document.querySelector(".grid");
+const checkButton = document.querySelector(".check");
+const livesDisplay = document.querySelector(".lives");
+const solvedArea = document.querySelector("#solved-area");
+
+let selected = [];
+let mistakes = 0;
+let solvedGroups = 0;
+let gameOver = false;
+
+const groups = [
+  {
+    name: "TIERE MADAGASKARS",
+    words: ["Lemur", "Fossa", "Aye-Aye", "Indri"],
+    className: "yellow"
+  },
+  {
+    name: "HISTORISCHE HERRSCHER",
+    words: ["Vaohaka Ntaolo", "Diogo Dias", "Adrianampoinimerina", "Ranavalora"],
+    className: "green"
+  },
+  {
+    name: "WÖRTER AUS DEM FRANZÖSISCHEN",
+    words: ["Bazar", "Camaron", "Gargote", "Kalalao"],
+    className: "blue"
+  },
+  {
+    name: "ETHNISCHE GRUPPEN",
+    words: ["Merina", "Betsimisaraka", "Betsileo", "Tsimihety"],
+    className: "purple"
+  }
+];
+
+function setupButtons() {
+  document.querySelectorAll(".grid button").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      if (gameOver) return;
+
+      if (button.classList.contains("selected")) {
+        button.classList.remove("selected");
+        selected = selected.filter(item => item !== button);
+        return;
+      }
+
+      if (selected.length >= 4) return;
+
+      button.classList.add("selected");
+      selected.push(button);
+    });
+  });
+}
+
+setupButtons();
+
+checkButton.addEventListener("click", () => {
+
+  if (gameOver) return;
+
+  if (selected.length !== 4) {
+    alert("Wähle genau 4 Begriffe aus!");
+    return;
+  }
+
+  const selectedWords = selected.map(button =>
+    button.textContent.trim()
+  );
+
+  const correctGroup = groups.find(group =>
+    !group.solved &&
+    group.words.every(word => selectedWords.includes(word))
+  );
+
+  if (correctGroup) {
+
+    correctGroup.solved = true;
+    solvedGroups++;
+
+    // Die vier einzelnen Kacheln entfernen
+    selected.forEach(button => button.remove());
+
+    // Neue Lösungszeile erstellen
+    addSolvedRow(correctGroup);
+
+    selected = [];
+
+    if (solvedGroups === 4) {
+      gameOver = true;
+      livesDisplay.textContent = "🎉 Alle Connections gefunden!";
+      checkButton.style.display = "none";
+    }
+
+  } else {
+
+    mistakes++;
+
+    selected.forEach(button =>
+      button.classList.remove("selected")
+    );
+
+    selected = [];
+
+    const remaining = 4 - mistakes;
+
+    livesDisplay.textContent =
+      "Fehlversuche übrig: " +
+      "● ".repeat(Math.max(remaining, 0));
+
+    if (mistakes >= 4) {
+
+      gameOver = true;
+
+      // Alle noch ungelösten Gruppen anzeigen
+      groups.forEach(group => {
+
+        if (!group.solved) {
+          group.solved = true;
+          addSolvedRow(group);
+        }
+
+      });
+
+      grid.innerHTML = "";
+
+      livesDisplay.textContent =
+        "❌ Keine Fehlversuche mehr";
+
+      checkButton.style.display = "none";
+
+    } else {
+      alert("Leider falsch ❌");
+    }
+  }
+});
+
+function addSolvedRow(group) {
+
+  const row = document.createElement("div");
+
+  row.className = "solution-row " + group.className;
+
+  row.innerHTML = `
+    <strong>${group.name}</strong>
+    <span>${group.words.join(" · ")}</span>
+  `;
+
+  solvedArea.appendChild(row);
+}
